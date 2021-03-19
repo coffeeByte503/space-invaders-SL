@@ -1,0 +1,411 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sistema</title>
+    <script type="application/javascript" src="js/react.min.js"></script>
+    <script type="application/javascript" src="js/react-dom.min.js"></script>
+    <script type="application/javascript" src="js/babel.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+        }
+
+        body {
+            background: #272727;
+            color: #fff;
+            font-family: sans-serif;
+        }
+
+        header {
+            display: flex;
+            position: fixed;
+    width: 100%;
+    top: 0;
+    background: #272727;
+    padding: 5px;
+        }
+        #main{
+            margin-top: 100px;
+        }
+        .center{text-align: center;}
+        .green {
+            color: #38ef3f;
+        }
+
+        .header-option {
+            margin: auto;
+            padding: 10px;
+            border-bottom: 2px solid #9E9E9E;
+            border-radius: 5px;
+            transition: 0.5s;
+        }
+        .header-option.active{
+            border-bottom: 2px solid #e91e63;
+            background: #607d8b;
+            
+        }
+
+        .producto {
+            display: flex;
+
+            margin-top: 15px;
+            margin-bottom: 15px;
+            padding: 10px;
+            background: linear-gradient(45deg, #2c2c2c, #673AB7);
+            text-align: center;
+            border: 1px solid;
+            border-radius: 5px;
+
+        }
+
+        .producto:nth-child(2n) {
+            background: linear-gradient(45deg, #2c2c2c, #3F51B5);
+        }
+
+        .producto>div {
+            margin: auto;
+        }
+
+        .btn-content {
+            display: flex;
+        }
+
+        .btn {
+            padding: 10px;
+            background: #e91e63;
+            border-radius: 10px;
+            margin-left: 10px;
+
+            box-shadow: 5px 5px 0 #9d0036;
+            transition: 0.2s;
+
+        }
+
+        .btn-content {
+            width: 50%;
+            justify-content: center;
+        }
+
+        .name {
+            width: 35%;
+            text-align: left;
+        }
+
+        .price {
+            width: 15%;
+        }
+
+
+        .btn:hover {
+            box-shadow: 0 0 0 #9d0036;
+            transform: scale(0.9) translate(4px, 4px);
+
+        }
+
+        .seccion-producto{
+            display: none;
+        }
+        .seccion-producto.active{
+            display: block;
+        }
+        .overlay{
+            width: 100%;
+    height: 100%;
+    position: fixed;
+    top: 0;
+    z-index: 1;
+    left: 0;
+    background: rgba(0,0,0,0.9);
+        }
+    </style>
+</head>
+
+<body>
+
+    <script>
+        const Component = React.Component;
+        const $ = element => document.querySelector(element);
+        class AudioL {
+            constructor(json) {
+                this.json = json;
+                this.urls = [];
+                this.names = [];
+                this.length = 0;
+                this.server = "./";
+                this.loaded = 0;
+                for (let i in json) {
+                    this.urls.push(json[i]);
+                    this.names.push(i);
+                    this.length++;
+                }
+                this.loaded = 0;
+            }
+            play(name, startTime = 0) {
+                try {
+                    const sound = {};
+                    Object.assign(sound, this.__proto__)
+
+                    sound[name].currentTime = startTime;
+
+                    sound[name].play();
+                } catch (e) {
+                    console.log(`"${name}" doesn't exist`);
+                }
+
+            }
+            async transition(song1, song2, max2, duration = 50) {
+                const
+                    a1 = audio[song1],
+                    a2 = audio[song2],
+                    volume = 0.01;
+
+                a2.volume = 0;
+
+                a2.play();
+                while (a1.volume >= 0.01) {
+
+                    a1.volume -= a1.volume - volume > 0 ? volume : 0
+
+                    a2.volume + volume < 1 ? a2.volume += volume : a1.volume = 0;
+
+                    a2.volume >= max2 ? a2.volume = max2 : 0;
+
+                    await sleep(duration);
+                }
+                a2.volume = max2;
+                a1.pause()
+            }
+            async loadAudio(url) {
+                return new Promise(resolve => {
+                    const audio = new Audio();
+                    audio.oncanplay = () => {
+                        resolve(audio)
+                    }
+                    audio.src = this.server + url;
+                })
+            }
+            async load() {
+                const loads = []
+                for (let i = 0; i < this.length; i++) {
+                    const url = this.urls[i];
+                    loads.push(this.loadAudio(url))
+                }
+                const loaded = await Promise.all(loads);
+                for (let i in loaded) {
+                    this.loaded++;
+                    this.__proto__[this.names[i]] = loaded[i];
+                }
+
+            }
+        }
+    </script>
+
+    <script type="text/babel">
+        
+        
+        const productos = {
+            arroz: {
+                price: 0.50
+            },
+            "papas fritas":{
+                price:0.50
+            }
+            ,
+            chorizo:{
+                price:0.25
+            },
+            platano:{
+                price:0.25
+            }
+            ,
+            "ensalada fresca": {
+                price: 0.50
+            },
+            "coditos": {
+                price: 0.50
+            },
+            "tortillas": {
+                price: 0.05
+            },
+            "medio plato de comida": {
+                price: 1.50
+            },
+            "plato de comida": {
+                price: 2.50
+            }
+        }
+        const bebidas={
+            soda:{
+                price:0.50
+            },
+            "cafe negro":{
+                price:0.25
+            }
+        }
+        class HeaderNav extends Component{
+            constructor(props){
+                super(props);
+                this.show=this.show.bind(this)
+              
+                this.state={
+                    showing:"comida"
+                }
+            }
+            show(e){
+                const name=e.target.dataset.showsection;
+
+                if(name==this.state.showing) return;
+
+                e.target.classList.remove("active");
+              
+                $(`#${name}`).classList.add("active");
+                $(`#${this.state.showing}`).classList.remove("active")
+
+                this.setState({showing:name});
+            }
+            
+            render(){
+                return(
+                    <header>
+                        <div className="header-option active" 
+                        data-showSection="comida" onClick={this.show}>Comida</div>
+
+                        <div className="header-option" 
+                        data-showSection="bebida" onClick={this.show}>Bebida</div>
+
+                        <div className="header-option" onClick={this.props.pay}>
+                            Total <span className="green">$<span id="total">{(this.props.total).toFixed(2)}</span></span>
+                        </div>
+                    </header>
+                )
+            }
+        }
+
+        class PopUp extends Component{
+            constructor(props){
+                super(props);
+                this.state={
+
+                }
+            }
+            render(){
+                return(
+                <div className="overlay">
+                    <div id="productos-select">
+                       <div class="producto-select">
+
+                        <div className="producto">
+                            <div className="name">papas</div>
+                            <div className="price green" >$0.50</div>
+                            <div className="btn-content">
+                                <div className="btn" data-name="papas">quitar</div>
+
+                            </div>
+                        </div>
+
+                       </div>
+                    </div>
+                    <div className="center">
+                    <span className="green">${this.props.total}</span>
+                    </div>
+                </div>
+                );
+            }
+        }
+
+        class App extends Component {
+            constructor(props) {
+                super(props);
+                this.add = this.add.bind(this);
+                this.pay=this.pay.bind(this)
+                this.state = {
+                    total: 0,
+                    productos: [1]
+                };
+
+            }
+            add(e) {
+                const producto = e.target.dataset.name
+                
+                const newTotal = this.state.total + productos[producto].price;
+                this.setState({
+                    total: newTotal
+                });
+                
+                audio.play("addProducto",0)
+                
+            }
+            pay(){
+                this.setState({
+                    total: 0
+                });
+            }
+           
+            render() {
+                const productosElem = [];
+                for (let name in productos) {
+                    const producto = productos[name];
+                    productosElem.push(
+                        <div className="producto">
+                            <div className="name">{name}</div>
+                            <div className="price green" >${producto.price}</div>
+                            <div className="btn-content">
+                                <div className="btn" data-name={name} onClick={this.add}>Agregar</div>
+
+                            </div>
+                        </div>
+                    )
+                    //<div className="btn" data-name={name}>Quitar</div>
+                }
+                const bebidasElem = [];
+                for (let name in bebidas) {
+                    const bebida = bebidas[name];
+                    bebidasElem.push(
+                        <div className="producto">
+                            <div className="name">{name}</div>
+                            <div className="price green">${bebida.price}</div>
+                            <div className="btn-content">
+                                <div className="btn" data-name={name} onClick={this.add}>Agregar</div>
+
+                            </div>
+                        </div>
+                    )
+                    //<div className="btn" data-name={name}>Quitar</div>
+                }
+                return (
+                    <div>
+                        <HeaderNav total={this.state.total} pay={this.pay}/>
+                        <PopUp productos={this.state.productos} total={this.state.total}/>
+                        <div id="main">
+                            <div id="comida" className="seccion-producto active"> {productosElem} </div>
+                            <div id="bebida" className="seccion-producto"> {bebidasElem} </div>
+                        </div>
+                    </div>
+                );
+
+            }
+        }
+    </script>
+
+    <script type="text/babel">
+    let audio=null;
+        async function main() {
+            
+
+            audio=new AudioL({
+                addProducto:"media/bgsong/hit1.mp3"
+             
+            })
+
+            await audio.load();
+
+            ReactDOM.render(<App />, $("body"));
+        }
+        main()
+    </script>
+</body>
+
+</html>
